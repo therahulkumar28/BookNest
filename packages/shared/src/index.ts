@@ -1,0 +1,1 @@
+export const BOOKNEST_VERSION = '1.0.0'

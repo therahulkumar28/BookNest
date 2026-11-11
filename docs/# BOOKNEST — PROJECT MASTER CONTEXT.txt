@@ -1,0 +1,507 @@
+# BOOKNEST — PROJECT MASTER CONTEXT
+**Document Version:** 1.0  
+**Project:** BookNest  
+**Document Purpose:** Project continuity, architecture reference, decision tracking and development handoff  
+**Status:** Initial development setup in progress
+
+---
+
+# 1. PROJECT OVERVIEW
+
+BookNest is a multi-tenant SaaS platform for independent libraries and study spaces.
+
+The platform allows library owners to manage their businesses through a web-based dashboard while students and visitors can discover libraries through a public website.
+
+BookNest itself is the SaaS provider. Libraries are its paying customers. Students are customers of individual libraries, not BookNest directly in V1.
+
+### Main objectives
+
+- Digitize library operations.
+- Manage library staff and permissions.
+- Manage students and memberships.
+- Configure study plans and time slots.
+- Track attendance.
+- Manage student payments, deposits and outstanding balances.
+- Provide financial reports.
+- Allow students to discover libraries and contact them.
+- Provide a scalable SaaS foundation for future features.
+
+# 2. BUSINESS MODEL
+
+There are two separate financial relationships.
+
+### A. BookNest subscription
+
+Library owners subscribe to BookNest.
+
+Planned subscription options:
+- 30-day free trial
+- Monthly
+- Quarterly
+- Yearly
+- Five-year
+
+### B. Library student finances
+
+Libraries independently manage:
+- Membership fees
+- Advance deposits
+- Payments
+- Discounts
+- Additional charges
+- Credits and adjustments
+- Refunds
+- Outstanding dues
+
+These two financial domains must remain separate in the application and database design.
+
+# 3. USER ROLES
+
+| Role | Responsibilities |
+|---|---|
+| Platform Admin | Manage the BookNest SaaS platform |
+| Library Owner | Manage their library and business |
+| Librarian/Staff | Perform authorized library operations |
+| Student/Public Visitor | Discover libraries and contact them |
+
+Students will not have login accounts in V1.
+
+Only library owners and authorized staff can create student records and memberships.
+
+# 4. V1 FUNCTIONAL SCOPE
+
+## Public website
+
+- Browse available libraries.
+- View library profiles.
+- View facilities and amenities.
+- View operating hours.
+- View study plans and available options.
+- View public library information.
+- Click to reveal the library/librarian contact number.
+- Contact the library directly.
+
+No in-platform appointment scheduling or student self-service booking in V1.
+
+## Library management dashboard
+
+### Library profile
+- Manage library details.
+- Manage public listing.
+- Manage contact information.
+- Manage facilities.
+
+### Operating hours
+- Configure opening and closing hours.
+- Support library-specific operating schedules.
+
+### Study plans and time slots
+- Create custom plans.
+- Configure plan names.
+- Configure access duration and time restrictions.
+- Support one or multiple plans.
+- Configure different prices for different plans.
+- Support future changes without changing existing membership terms.
+
+A library must have at least one active study plan before offering memberships.
+
+### Staff management
+- Add and manage librarians/staff.
+- Assign roles and permissions.
+- Restrict staff access according to permissions.
+
+### Student management
+- Create student/member profiles.
+- Update member details.
+- View membership information.
+- Maintain member records.
+
+### Membership management
+- Create memberships.
+- Support monthly, quarterly, yearly and custom durations.
+- Support different plans.
+- Support individual agreed pricing.
+- Support discounts and adjustments.
+- Preserve original membership terms when standard pricing changes.
+
+### Financial management
+- Record payments.
+- Record advance deposits.
+- Track outstanding balances.
+- Apply discounts.
+- Record additional charges.
+- Record credits and adjustments.
+- Handle refunds.
+- Maintain an auditable transaction history.
+
+### Attendance
+- Record and manage student attendance.
+- Attendance capture method is still to be finalized.
+
+### Reports
+- Membership reports.
+- Student reports.
+- Attendance reports.
+- Financial reports.
+
+### BookNest subscription
+- View subscription status.
+- Manage subscription information.
+- Track trial and subscription periods.
+
+# 5. FEATURES EXCLUDED FROM V1
+
+The following are future-version features:
+
+- Student login and authentication.
+- Student self-service dashboard.
+- Student membership purchase.
+- Online student payments.
+- Student payment history and self-service dues.
+- Appointment scheduling.
+- Book catalogue.
+- Book inventory.
+- Book issue and return.
+- Book reservations.
+
+The architecture should allow these features to be introduced later without redesigning the entire system.
+
+# 6. IMPORTANT BUSINESS RULES
+
+1. Each library is an independent tenant.
+2. Every tenant-owned record must be associated with its tenant/library.
+3. Backend authorization must determine tenant access from authenticated identity.
+4. Frontend-provided tenant IDs must never be trusted as authorization.
+5. Cross-tenant data access must be prevented and tested.
+6. A library can configure its own operating hours.
+7. Each library can create custom study plans and access slots.
+8. Membership duration and daily study-plan duration are separate concepts.
+9. Each plan can have different standard prices.
+10. Individual students can have negotiated prices.
+11. Existing memberships retain their original agreed terms.
+12. Financial balances must be derived from transactions, not manually overwritten.
+13. Financial corrections must be recorded through adjustment or reversal transactions.
+14. BookNest subscription billing and library student finances must remain separate.
+
+# 7. STUDY PLAN DESIGN
+
+Study plans must be configurable rather than hardcoded.
+
+Example:
+
+Library operating hours: 6 AM–10 PM.
+
+Possible plans:
+- Morning: 8 AM–2 PM.
+- Evening: 2 PM–8 PM.
+- Full Day: 8 hours of permitted access.
+
+Different libraries may offer:
+- One plan covering their permitted operating hours.
+- Two daily shifts.
+- Three daily shifts.
+- Custom access arrangements.
+
+Pricing is configurable by the library owner.
+
+Membership duration is independent of the daily access plan.
+
+Example:
+A student may purchase a monthly membership for the Morning plan.
+
+# 8. FINANCIAL DESIGN
+
+Use an auditable ledger.
+
+Example:
+
+- Advance deposit: +₹2,000
+- Membership charge: -₹1,000
+- Additional charge: -₹100
+- Remaining balance: ₹900
+
+Every financial operation must be traceable.
+
+Store relevant information such as:
+- Amount
+- Transaction type
+- Date
+- Payment method
+- Reference
+- Related member/membership
+- Recorded by
+- Reason or description
+
+Initial offline payment methods may include cash, UPI and bank transfer.
+
+Online payment gateway selection is pending.
+
+# 9. TECHNICAL STACK — PROPOSED AND SELECTED DIRECTION
+
+The initial architecture direction is a modular monolith using a JavaScript/TypeScript ecosystem.
+
+### Frontend
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- React Router
+- TanStack Query
+- React Hook Form
+- Zod
+- Lucide React
+
+### Backend
+- Node.js
+- Express
+- TypeScript
+- REST API
+- Zod validation
+- Mongoose
+
+### Database
+- MongoDB
+
+### Development architecture
+- npm workspaces
+- Monorepo
+- Shared package for common types and validation
+- Separate frontend and backend applications
+
+### Testing direction
+- Vitest
+- React Testing Library
+- Backend API integration tests using Supertest
+- Tenant isolation tests
+- Financial ledger tests
+
+Exact versions and final tool choices should be confirmed against the actual project files.
+
+# 10. PROPOSED PROJECT STRUCTURE
+
+```text
+booknest/
+│
+├── apps/
+│   ├── web/
+│   │   └── React frontend
+│   │
+│   └── api/
+│       └── Express backend
+│
+├── packages/
+│   └── shared/
+│       └── Shared types and validation
+│
+├── docs/
+│   ├── requirements/
+│   ├── hld/
+│   └── lld/
+│
+├── package.json
+├── package-lock.json
+├── tsconfig.base.json
+├── .gitignore
+└── README.md
+```
+
+# 11. HIGH-LEVEL ARCHITECTURE
+
+```text
+                 BOOKNEST
+                    |
+       +------------+------------+
+       |                         |
+  Public Website           Admin/Dashboard
+       |                         |
+       +------------+------------+
+                    |
+                 REST API
+                    |
+             Authentication
+                    |
+          Authorization Layer
+                    |
+             Tenant Isolation
+                    |
+            Backend Modules
+                    |
+                 MongoDB
+```
+
+Proposed backend modules:
+
+1. Authentication
+2. Platform Administration
+3. Tenant Management
+4. Library Management
+5. Staff Management
+6. Study Plans
+7. Pricing
+8. Members
+9. Memberships
+10. Finance
+11. Attendance
+12. Reports
+13. BookNest Subscription
+14. Audit Logs
+15. Notifications
+
+# 12. SECURITY AND PRODUCTION REQUIREMENTS
+
+- Secure authentication.
+- Role-based access control.
+- Tenant isolation.
+- Server-side authorization.
+- Input validation.
+- Secure password hashing.
+- HTTPS in production.
+- Environment-based secrets.
+- Rate limiting.
+- Audit logging.
+- Database backups.
+- Error handling and monitoring.
+- Automated tests.
+- Secure handling of sensitive personal information.
+
+Avoid collecting full Aadhaar numbers by default. Any decision to collect them requires a documented necessity and privacy/legal review, with encryption, restricted access and retention controls.
+
+# 13. DEVELOPMENT PROCESS
+
+The agreed engineering process is:
+
+1. SRS — Software Requirements Specification
+2. HLD — High-Level Design
+3. LLD — Low-Level Design
+4. UI/UX Design
+5. Implementation
+6. Testing
+7. Deployment
+
+We will not rush into building all modules at once.
+
+We will develop one module at a time, verify it, test it and then proceed.
+
+# 14. CURRENT DEVELOPMENT PROGRESS
+
+## Environment
+
+- [x] Node.js installed — v26.13.0
+- [x] npm installed — v11.20.0
+- [x] Windows PowerShell environment
+- [x] Project directory created — BookNest
+- [x] Root package.json created
+- [x] Workspace configuration prepared
+- [x] Initial npm script issue resolved by the developer using GitHub Copilot
+
+## Project setup
+
+- [x] apps directory exists
+- [x] packages directory exists
+- [x] Root package-lock.json exists
+- [ ] Verify React frontend configuration
+- [ ] Verify Express API configuration
+- [ ] Verify shared package configuration
+- [ ] Verify npm workspaces resolve correctly
+- [ ] Confirm frontend starts successfully
+- [ ] Confirm backend starts successfully
+- [ ] Confirm API health endpoint works
+- [ ] Initialize/verify Git repository
+- [ ] Add environment example files
+- [ ] Verify .gitignore
+
+**Important:** The root npm script issue was resolved according to the developer. Actual frontend/backend startup and health checks have not yet been confirmed in this project record.
+
+# 15. REQUIREMENTS AND DESIGN DOCUMENT STATUS
+
+An earlier SRS v2.0 document was created.
+
+However, it needs an update because direct student booking was subsequently removed from V1.
+
+The next requirements milestone is to finalize the V1 SRS and record the final business decisions.
+
+HLD and LLD are not yet formally finalized.
+
+# 16. OPEN DESIGN DECISIONS
+
+The following need confirmation before implementation:
+
+1. Library-wide capacity versus optional capacity per study plan.
+2. Exact attendance method: manual, QR, check-in/check-out or a combination.
+3. Whether membership extensions and renewals create new records or extend existing records.
+4. Exact staff permission matrix.
+5. Online payment gateway, if needed.
+6. Exact subscription billing and trial rules.
+7. Cancellation and refund policies.
+8. Required member profile fields and privacy policy.
+9. Final deployment provider and infrastructure.
+10. Whether multiple branches under one library owner are required in V1.
+
+Do not silently assume decisions for these items.
+
+# 17. NEXT DEVELOPMENT MILESTONES
+
+### Milestone 1 — Finish coding environment
+- Verify workspace configuration.
+- Verify frontend.
+- Verify backend.
+- Verify shared package.
+- Verify API health endpoint.
+- Verify Git setup.
+
+### Milestone 2 — Finalize V1 SRS
+- Review all business requirements.
+- Remove student booking from V1.
+- Confirm roles and permissions.
+- Confirm finance and membership rules.
+- Resolve critical open decisions.
+- Version and save the final SRS.
+
+### Milestone 3 — HLD
+- Finalize system architecture.
+- Define backend modules.
+- Define tenant isolation strategy.
+- Define deployment architecture.
+- Define security approach.
+
+### Milestone 4 — LLD
+- Database schema.
+- API contracts.
+- Authentication and authorization.
+- Tenant middleware.
+- Validation rules.
+- Financial ledger design.
+- Module dependencies.
+
+### Milestone 5 — UI/UX
+- Public website.
+- Platform admin dashboard.
+- Library owner dashboard.
+- Staff dashboard.
+- Member and finance workflows.
+
+### Milestone 6 — Implementation
+Implement modules in dependency order, with tests and documentation.
+
+# 18. INSTRUCTIONS FOR FUTURE CHATGPT CONVERSATIONS
+
+When this document is uploaded into a new conversation:
+
+1. Read the entire document first.
+2. Treat it as the current BookNest project context.
+3. Do not restart requirements gathering from zero.
+4. Do not change previously agreed business rules without discussing the change.
+5. Ask for current code or folder structure only when necessary.
+6. Clearly distinguish completed work from proposed work.
+7. Work step by step.
+8. Give Windows PowerShell-compatible commands when relevant.
+9. Never claim code has been executed or tested unless the developer confirms it or provides results.
+10. Update this master document whenever a major decision, architecture change, milestone or implementation completion occurs.
+11. Maintain version numbers and a change history.
+12. When uncertain, ask one focused clarification rather than inventing a decision.
+
+**Immediate continuation point:** Verify the existing BookNest frontend, backend and shared workspace setup. Then finalize the V1 SRS and begin HLD/LLD preparation alongside coding setup.
+
+---
+
+**END OF BOOKNEST PROJECT MASTER CONTEXT v1.0**
