@@ -1,9 +1,10 @@
 
-import 'dotenv/config'
-
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
+import mongoose from 'mongoose'
+import { env } from './config/env'
+import { connectDatabase, disconnectDatabase } from './config/database'
 
 const app = express()
 
@@ -11,7 +12,7 @@ app.use(helmet())
 
 app.use(
   cors({
-    origin: process.env.WEB_ORIGIN ?? 'http://localhost:5173',
+    origin: env.WEB_ORIGIN,
   }),
 )
 
@@ -25,8 +26,47 @@ app.get('/api/v1/health', (_req, res) => {
   })
 })
 
-const PORT = Number(process.env.PORT ?? 5000)
+app.get('/api/v1/ready', (_req, res) => {
+  const databaseConnected = mongoose.connection.readyState === 1
 
-app.listen(PORT, () => {
-  console.log(`BookNest API running on port ${PORT}`)
+  res.status(databaseConnected ? 200 : 503).json({
+    success: databaseConnected,
+    database: databaseConnected ? 'connected' : 'disconnected',
+  })
 })
+
+async function startServer(): Promise<void> {
+  try {
+    await connectDatabase()
+
+    const server = app.listen(env.PORT, () => {
+      console.log(`BookNest API running on port ${env.PORT}`)
+    })
+
+    async function shutdown(): Promise<void> {
+      console.log('Shutting down BookNest API')
+
+      server.close(async (error) => {
+        if (error) {
+          console.error('HTTP server shutdown failed:', error)
+          process.exitCode = 1
+        }
+
+        try {
+          await disconnectDatabase()
+        } catch (databaseError) {
+          console.error('Database shutdown failed:', databaseError)
+          process.exitCode = 1
+        }
+      })
+    }
+
+    process.once('SIGINT', () => void shutdown())
+    process.once('SIGTERM', () => void shutdown())
+  } catch (error) {
+    console.error('BookNest API startup failed:', error)
+    process.exitCode = 1
+  }
+}
+
+void startServer()
