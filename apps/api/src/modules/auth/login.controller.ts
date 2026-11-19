@@ -1,3 +1,4 @@
+import { writeAuthAudit } from './auth-audit.service'
 
 import type {
   Request,
@@ -42,6 +43,12 @@ export async function loginController(
     })
   } catch (error) {
     if (error instanceof LoginError) {
+      try {
+        await writeAuthAudit({ action: 'LOGIN_REJECTED', email: parsed.data.email })
+      } catch {
+        // Preserve generic login error and avoid leaking audit-store details.
+        console.error('Authentication audit write failed')
+      }
       res.status(error.statusCode).json({
         success: false,
         message: error.message,

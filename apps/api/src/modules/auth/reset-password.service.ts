@@ -1,3 +1,4 @@
+import { writeAuthAudit } from './auth-audit.service'
 
 import mongoose from 'mongoose'
 import { UserModel } from './user.model'
@@ -136,5 +137,7 @@ export async function resetPassword(
             },
             { session },
         )
+
+        await writeAuthAudit({ action: 'PASSWORD_RESET_COMPLETED', userId: user._id }, session)
     })
 }

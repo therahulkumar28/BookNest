@@ -1,3 +1,4 @@
+import { writeAuthAudit } from './auth-audit.service'
 
 import mongoose from 'mongoose'
 
@@ -37,6 +38,8 @@ export async function createLoginSession(input: LoginInput) {
             libraryId: account.libraryId,
             sessionId: session._id.toString(),
         })
+
+        await writeAuthAudit({ action: 'LOGIN_SUCCEEDED', userId: new mongoose.Types.ObjectId(account.userId), sessionId: session._id })
 
         return {
             accessToken,

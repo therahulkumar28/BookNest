@@ -4,6 +4,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import mongoose from 'mongoose'
 import { env } from './config/env'
+import { corsOptions } from './config/cors-policy'
 import { connectDatabase, disconnectDatabase } from './config/database'
 import { authRouter } from './modules/auth/auth.routes'
 import type { ErrorRequestHandler } from 'express'
@@ -13,11 +14,7 @@ const app = express()
 
 app.use(helmet())
 
-app.use(
-  cors({
-    origin: env.WEB_ORIGIN,
-  }),
-)
+app.use(cors(corsOptions))
 
 app.use(express.json({ limit: '1mb' }))
 

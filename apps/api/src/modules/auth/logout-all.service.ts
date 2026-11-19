@@ -1,6 +1,7 @@
 import mongoose, { type Types } from 'mongoose'
 import { RefreshSessionModel } from './refresh-session.model'
 import { lockAuthSession } from './lock-auth-session.service'
+import { writeAuthAudit } from './auth-audit.service'
 
 /** Revokes every active session, across all devices and token families. */
 export async function logoutAllSessions(userId: Types.ObjectId): Promise<number> {
@@ -11,6 +12,7 @@ export async function logoutAllSessions(userId: Types.ObjectId): Promise<number>
       { $set: { revokedAt: new Date(), revocationReason: 'LOGOUT_ALL' } },
       { session },
     )
+    await writeAuthAudit({ action: 'LOGOUT_ALL', userId }, session)
     return result.modifiedCount
   })
 }
