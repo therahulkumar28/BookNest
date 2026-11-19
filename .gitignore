@@ -9,7 +9,11 @@ build/
 coverage/
 .nyc_output/
 .vite/
+.cache/
+.parcel-cache/
+.eslintcache
 *.tsbuildinfo
+*.zip
 
 # Environment variables and secrets
 .env

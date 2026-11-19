@@ -1,5 +1,9 @@
 
-import mongoose, { Schema, type InferSchemaType } from 'mongoose'
+import mongoose, {
+  Schema,
+  type InferSchemaType,
+  type Model,
+} from 'mongoose'
 
 export const USER_ROLES = [
   'PLATFORM_ADMIN',
@@ -78,5 +82,6 @@ userSchema.index({ libraryId: 1, role: 1 })
 
 export type User = InferSchemaType<typeof userSchema>
 
-export const UserModel =
-  mongoose.models.User || mongoose.model('User', userSchema)
+export const UserModel: Model<User> =
+  (mongoose.models.User as Model<User> | undefined) ??
+  mongoose.model<User>('User', userSchema)

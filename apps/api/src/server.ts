@@ -5,6 +5,9 @@ import helmet from 'helmet'
 import mongoose from 'mongoose'
 import { env } from './config/env'
 import { connectDatabase, disconnectDatabase } from './config/database'
+import { authRouter } from './modules/auth/auth.routes'
+import type { ErrorRequestHandler } from 'express'
+import { staffRouter } from './modules/staff/staff.routes'
 
 const app = express()
 
@@ -34,6 +37,23 @@ app.get('/api/v1/ready', (_req, res) => {
     database: databaseConnected ? 'connected' : 'disconnected',
   })
 })
+app.use('/api/v1/auth', authRouter)
+app.use('/api/v1/staff', staffRouter)
+const errorHandler: ErrorRequestHandler = (
+  error,
+  _req,
+  res,
+  _next,
+) => {
+  console.error('Unhandled API error:', error)
+
+  res.status(500).json({
+    success: false,
+    message: 'An unexpected server error occurred',
+  })
+}
+
+app.use(errorHandler)
 
 async function startServer(): Promise<void> {
   try {
