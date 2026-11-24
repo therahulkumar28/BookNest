@@ -2,6 +2,7 @@ import mongoose, { Schema } from 'mongoose'
 
 export const AUTH_AUDIT_ACTIONS = [
   'LOGIN_SUCCEEDED', 'LOGIN_REJECTED', 'PASSWORD_RESET_COMPLETED', 'LOGOUT_ALL',
+  'VERIFICATION_EMAIL_DELIVERY_FAILED', 'PASSWORD_RESET_EMAIL_DELIVERY_FAILED',
 ] as const
 
 const authAuditSchema = new Schema({

@@ -1,4 +1,6 @@
 
+import { recordEmailDeliveryFailure } from './email-delivery-failure.service'
+
 import mongoose from 'mongoose'
 
 import { UserModel } from './user.model'
@@ -165,8 +167,11 @@ export async function registerOwner(
 
     try {
   await sendVerificationOtpEmail(result.email, otp)
-} catch (error) {
-  console.error('Verification email delivery failed')
+} catch {
+  await recordEmailDeliveryFailure(
+    new mongoose.Types.ObjectId(result.ownerId),
+    'VERIFICATION',
+  )
 
   // The account and OTP are already saved.
   // Do not attempt to register the owner again.

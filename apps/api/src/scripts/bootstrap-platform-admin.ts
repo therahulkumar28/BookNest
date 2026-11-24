@@ -1,5 +1,6 @@
 
 import 'dotenv/config'
+import { assertBootstrapEnvironment } from './bootstrap-platform-admin-policy'
 import mongoose from 'mongoose'
 import { createInterface } from 'node:readline/promises'
 import { stdin, stdout } from 'node:process'
@@ -9,14 +10,7 @@ import { UserModel } from '../modules/auth/user.model'
 import { hashPassword } from '../modules/auth/password.service'
 import { PlatformAdminBootstrapModel } from '../modules/auth/platform-admin-bootstrap.model'
 async function main(): Promise<void> {
-  if (
-    process.env.NODE_ENV !== 'development' &&
-    process.env.NODE_ENV !== 'test'
-  ) {
-    throw new Error(
-      'Platform Admin bootstrap is restricted to development and testing',
-    )
-  }
+  assertBootstrapEnvironment(process.env.NODE_ENV, process.env.BOOKNEST_ALLOW_PRODUCTION_BOOTSTRAP)
 
   await connectDatabase()
 

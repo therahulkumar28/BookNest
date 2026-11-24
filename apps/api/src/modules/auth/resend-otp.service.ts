@@ -1,4 +1,6 @@
 
+import { recordEmailDeliveryFailure } from './email-delivery-failure.service'
+
 import { UserModel } from './user.model'
 
 import { issueEmailOtp } from './issue-email-otp.service'
@@ -31,6 +33,6 @@ export async function resendVerificationOtp(
   try {
     await sendVerificationOtpEmail(user.email, otp)
   } catch {
-    console.error('OTP resend email delivery failed')
+    await recordEmailDeliveryFailure(user._id, 'VERIFICATION')
   }
 }

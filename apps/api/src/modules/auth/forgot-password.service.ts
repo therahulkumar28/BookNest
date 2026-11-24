@@ -1,4 +1,6 @@
 
+import { recordEmailDeliveryFailure } from './email-delivery-failure.service'
+
 import { UserModel } from './user.model'
 
 import { issueEmailOtp } from './issue-email-otp.service'
@@ -29,6 +31,6 @@ export async function requestPasswordReset(
   try {
     await sendPasswordResetOtpEmail(user.email, otp)
   } catch {
-    console.error('Password reset email delivery failed')
+    await recordEmailDeliveryFailure(user._id, 'PASSWORD_RESET')
   }
 }

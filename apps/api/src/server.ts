@@ -5,6 +5,7 @@ import helmet from 'helmet'
 import mongoose from 'mongoose'
 import { env } from './config/env'
 import { corsOptions } from './config/cors-policy'
+import { ensureRateLimitIndexes } from './config/mongo-rate-limit-store'
 import { connectDatabase, disconnectDatabase } from './config/database'
 import { authRouter } from './modules/auth/auth.routes'
 import type { ErrorRequestHandler } from 'express'
@@ -55,6 +56,7 @@ app.use(errorHandler)
 async function startServer(): Promise<void> {
   try {
     await connectDatabase()
+    if (env.NODE_ENV === 'production') await ensureRateLimitIndexes()
 
     const server = app.listen(env.PORT, () => {
       console.log(`BookNest API running on port ${env.PORT}`)

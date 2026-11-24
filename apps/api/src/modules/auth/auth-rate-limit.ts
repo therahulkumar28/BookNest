@@ -1,8 +1,10 @@
+import { rateLimitStore } from '../../config/mongo-rate-limit-store'
 
 import { rateLimit } from 'express-rate-limit'
 
 export const registrationRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
+  store: rateLimitStore('registrationRateLimiter', 15 * 60 * 1000),
 
   limit: 5,
 
@@ -19,6 +21,7 @@ export const registrationRateLimiter = rateLimit({
 
 export const otpVerificationRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
+  store: rateLimitStore('otpVerificationRateLimiter', 15 * 60 * 1000),
   limit: 10,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
@@ -31,6 +34,7 @@ export const otpVerificationRateLimiter = rateLimit({
 
 export const otpResendRateLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
+  store: rateLimitStore('otpResendRateLimiter', 60 * 60 * 1000),
   limit: 5,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
@@ -43,6 +47,7 @@ export const otpResendRateLimiter = rateLimit({
 
 export const forgotPasswordRateLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
+  store: rateLimitStore('forgotPasswordRateLimiter', 60 * 60 * 1000),
   limit: process.env.NODE_ENV === 'production' ? 5 : 30,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
@@ -50,6 +55,7 @@ export const forgotPasswordRateLimiter = rateLimit({
 
 export const resetPasswordRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
+  store: rateLimitStore('resetPasswordRateLimiter', 15 * 60 * 1000),
   limit: process.env.NODE_ENV === 'production' ? 10 : 30,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
@@ -58,6 +64,7 @@ export const resetPasswordRateLimiter = rateLimit({
 
 export const loginRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
+  store: rateLimitStore('loginRateLimiter', 15 * 60 * 1000),
   limit: process.env.NODE_ENV === 'production' ? 10 : 100,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
@@ -69,6 +76,7 @@ export const loginRateLimiter = rateLimit({
 
 export const staffInvitationAcceptanceRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
+  store: rateLimitStore('staffInvitationAcceptanceRateLimiter', 15 * 60 * 1000),
   limit: process.env.NODE_ENV === 'production' ? 10 : 100,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
